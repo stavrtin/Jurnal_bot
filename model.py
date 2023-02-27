@@ -16,11 +16,13 @@ import psycopg2
 #             }
 
 my_db = psycopg2.connect(
+    # -------------
     database="jurnal_db",
     user="postgres",
     password="1234",
     host="localhost",
     port="5432"
+
 )
 
 mycursor = my_db.cursor()
