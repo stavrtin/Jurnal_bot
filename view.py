@@ -25,7 +25,7 @@ def admin_menu(message):
 
 
 
-def add_record_menu(message):
+def admin_add_record_menu(message):
     # --------------- добавляем запись ФИО---
     # -- сначала выбрать ВПС-ку-------------
 
@@ -38,9 +38,10 @@ def add_record_menu(message):
 
     controller.bot.send_message(message.chat.id, f"Выберете ВПС, в которой ДОБАВЛЯЕМ запись\n или ↪️В меню",
                                     reply_markup=markup, parse_mode="Markdown")
-    controller.bot.register_next_step_handler(message, add_fio_menu)
+    controller.bot.register_next_step_handler(message, admin_add_fio_menu)
 
-def add_fio_menu(message):
+
+def admin_add_fio_menu(message):
     # ---читаем БД -------
     status = 'где ВЫДАЁТСЯ ☏'
     data_db = model.read_db(status)
@@ -50,7 +51,6 @@ def add_fio_menu(message):
         item_back = types.KeyboardButton('↪️В меню')
         markup_add_fio.add(item_back)
 
-
         controller.bot.send_message(message.chat.id, f"Вы выбрали {vps_name} для добавления сотрудника\n "
                                                      f"Введите ФИО \nили ↪️В меню ",
                                              reply_markup=markup_add_fio, parse_mode= "Markdown")  # reply_markup - вывод меню
@@ -59,6 +59,59 @@ def add_fio_menu(message):
     else:
         controller.bot.send_message(message.chat.id, "☹ Неверно указана ВПС...")
         start_menu(message)
+
+
+# -------------- admin_drop_record_menu --------------
+
+def admin_drop_menu_choise_vps(message):
+    text_status = 'где ВЫДАЁТСЯ ☏'
+    # text_status = 'куда СДАЕТСЯ ☎'
+
+    # ---- ДИНАМИЧЕСКИ создать кнопки ВПС -------
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)  # -СОЗДАЮ меню
+    # ---читаем БД -------
+    data_db = model.read_db(text_status)
+    dinamic_columns_button(markup, data_db)
+    controller.bot.send_message(message.chat.id, f"Выберете ВПС, в которой убираем сотрудника\n или ↪️В меню",
+                                    reply_markup=markup, parse_mode= "Markdown")
+    controller.bot.register_next_step_handler(message, controller.admin_drop_rec_choice_fio_from_vps, text_status)  # --- переходим к выбору ВПС
+
+def admin_menu_choise_fio(message, status):
+    # ---читаем БД -------
+    data_db = model.read_db(status)
+    vps_name = message.text  # ------- получил имя ВПС (выбрано нажатием кнопки - текст КНОПКИ)
+    markup_choise_fio = types.ReplyKeyboardMarkup(resize_keyboard=True)  # -СОЗДАЮ меню markup
+
+    # ----- если вдруг vps_name не из списка ВПС, прописанного в базе ----
+    try:
+        # dinamic_columns_button(markup_choise_fio, model.vps_dict[vps_name])
+        dinamic_columns_button(markup_choise_fio, data_db[vps_name])#----------------------&&&&
+        # --- сразу меню не появится, надо пульнуть сообщения --
+        controller.bot.send_message(message.chat.id, f"Выберете кого убираем\n или ↪️В меню ",
+                                        reply_markup=markup_choise_fio, parse_mode= "Markdown")  # reply_markup - вывод меню
+
+        controller.bot.register_next_step_handler(message, admin_drop_menu_confirm_records, vps_name, status)  # --- переходим к выбору FIO
+    except:
+        controller.bot.send_message(message.chat.id, "☹ Неверно указана ВПС...")
+        start_menu(message)
+
+def admin_drop_menu_confirm_records(message, vps_name, status):
+    if message.text == '↪️В меню':
+        start_menu(message)
+
+    else:
+        fio = message.text
+        # ---------------- проверять фио на принадлежность к бд ------!!!!!!!!-------
+        keyboard = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)  # Подключаем клавиатуру
+        item_back = types.KeyboardButton('Отмена\n↪️В меню')
+
+        if status == 'где ВЫДАЁТСЯ ☏':
+            button_phone = types.KeyboardButton(text=f'✅ Удаляем {fio} ?',  request_contact=True)
+            keyboard.add(button_phone, item_back)  # Добавляем эту кнопку
+            controller.bot.send_message(message.chat.id, f'Удаляем запись *{fio}* из *{vps_name}*?\n',
+                                                        reply_markup=keyboard, parse_mode= "Markdown")  # Дублируем сообщение
+            controller.bot.register_next_step_handler(message, model.admin_drop_contact, fio, vps_name)
+
 
 
 def start_menu(message):
@@ -173,6 +226,11 @@ def confirm_new_fio_recording_by_chat(message, fio, vps_name):
     controller.bot.send_message(message.chat.id,
                         f'<b> Сотрудник {fio}</b> добавлен в <b>{vps_name}</b>', parse_mode="HTML")  # -- вывод сообщ на экран телеф
 
+
+def confirm_drop_records_by_chat(message, fio, vps_name):
+    controller.bot.send_message(message.chat.id,
+                                f'<b> Сотрудник {fio}</b> УДАЛЕН из <b>{vps_name}</b>',
+                                parse_mode="HTML")  # -- вывод сообщ на экран телеф
 
 def wrong_choise(message):
     controller.bot.send_message(message.chat.id, "Выберете действие, указанное на кнопках, или /start для перезапуска БОТа ")

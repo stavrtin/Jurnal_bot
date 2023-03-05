@@ -42,7 +42,11 @@ def bot_messages(message): # --------------------формируем список
             view.start_menu(message)
 
         elif message.text == '👽 Добавить':  # ------ подменю админа'
-            view.add_record_menu(message)
+            view.admin_add_record_menu(message)
+
+        elif message.text == '✂ Удалить сведения':  # ------ подменю админа для удаления фио'
+            view.admin_drop_menu_choise_vps(message)
+
 
         else:
             # bot.send_message(message.chat.id, "Выберете действие, указанное на кнопках, или /start для перезапуска БОТа ")
@@ -56,9 +60,18 @@ def choice_fio_from_vps(message, text_status):
     if message.text == '↪️В меню':
         view.start_menu(message)
     # ----- проверка Админского пароля -----
-#
     else:
         view.menu_choise_fio(message, text_status)
+
+@bot.message_handler(content_types=["text"])
+def admin_drop_rec_choice_fio_from_vps(message, text_status):
+    if message.text == '↪️В меню':
+        view.start_menu(message)
+    # ----- проверка Админского пароля -----
+    else:
+        view.admin_menu_choise_fio(message, text_status)
+
+
 
 # -------------
 

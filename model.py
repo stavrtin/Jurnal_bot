@@ -143,3 +143,34 @@ def insert_new_record_to_db(message, vps_name):
         view.confirm_new_fio_recording_by_chat(message, fio, vps_name)
         view.start_menu(message)
 
+
+# message, fio, vps_name, status
+def admin_drop_contact(message, fio, vps_name):
+    if message.text != None:
+        view.start_menu(message)
+
+    else:
+        if message.contact is not None:  # Если присланный объект <strong>contact</strong> не равен нулю
+            drop_data(vps_name, fio)
+            view.confirm_drop_records_by_chat(message, fio, vps_name)
+            view.start_menu(message)
+
+
+def drop_data(vps_name, fio):
+    # -------------------------------- считываем БД ----------
+    my_db = psycopg2.connect(
+        # -------------
+        database="jurnal_db",
+        user="postgres",
+        password="1234",
+        host="localhost",
+        port="5432",
+    )
+    mycursor = my_db.cursor()
+    # --------------------------------------------------------
+
+    mycursor.execute(f"DELETE FROM spisok_vps WHERE name_vps = '{vps_name}' AND fio = '{fio}'");
+    my_db.commit()
+
+    my_db.close()  # --------------- закрывашка БД ---------
+    mycursor.close()
