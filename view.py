@@ -65,11 +65,13 @@ def dinamic_columns_button(markup, button_dict):
     return markup
 
 def menu_choise_vps(message, text_status):
+    # text_status = 'где ВЫДАЁТСЯ ☏'
+    # text_status = 'куда СДАЕТСЯ ☎'
 
     # ---- ДИНАМИЧЕСКИ создать кнопки ВПС -------
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)  # -СОЗДАЮ меню
     # ---читаем БД -------
-    data_db = model.read_db()
+    data_db = model.read_db(text_status)
     dinamic_columns_button(markup, data_db)
 
     if text_status == 'где ВЫДАЁТСЯ ☏':
@@ -82,7 +84,7 @@ def menu_choise_vps(message, text_status):
 
 def menu_choise_fio(message, status):
     # ---читаем БД -------
-    data_db = model.read_db()
+    data_db = model.read_db(status)
     vps_name = message.text  # ------- получил имя ВПС (выбрано нажатием кнопки - текст КНОПКИ)
     markup_choise_fio = types.ReplyKeyboardMarkup(resize_keyboard=True)  # -СОЗДАЮ меню markup
 
