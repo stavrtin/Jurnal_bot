@@ -1,7 +1,7 @@
 from telebot import types
 import model
 import controller
-
+import psycopg2
 
 def admin_psw_menu(message):
     # ---- меню для ввода пароля Админа ---
@@ -32,7 +32,7 @@ def start_menu(message):
 
     markup.add(item2, item3, item4)
     # --- сразу меню не появится, надо пульнуть сообщения --
-    controller. bot.send_message(message.chat.id, "Бот готов к регистрации записи в журнал приема/выдачи телефонов",
+    controller.bot.send_message(message.chat.id, "Бот готов к регистрации записи в журнал приема/выдачи телефонов",
                      reply_markup=markup)  # reply_markup - вывод меню
 
 def dinamic_columns_button(markup, button_dict):
@@ -68,7 +68,9 @@ def menu_choise_vps(message, text_status):
 
     # ---- ДИНАМИЧЕСКИ создать кнопки ВПС -------
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)  # -СОЗДАЮ меню
-    dinamic_columns_button(markup, model.vps_dict)
+    # ---читаем БД -------
+    data_db = model.read_db()
+    dinamic_columns_button(markup, data_db)
 
     if text_status == 'где ВЫДАЁТСЯ ☏':
         controller.bot.send_message(message.chat.id, f"Выберете ВПС, *{text_status}*\n или ↪️В меню",
@@ -79,14 +81,15 @@ def menu_choise_vps(message, text_status):
     controller.bot.register_next_step_handler(message, controller.choice_fio_from_vps, text_status)  # --- переходим к выбору ВПС
 
 def menu_choise_fio(message, status):
-    # ----формируем список фамилий на основе выбора ВПС---
-
+    # ---читаем БД -------
+    data_db = model.read_db()
     vps_name = message.text  # ------- получил имя ВПС (выбрано нажатием кнопки - текст КНОПКИ)
     markup_choise_fio = types.ReplyKeyboardMarkup(resize_keyboard=True)  # -СОЗДАЮ меню markup
 
     # ----- если вдруг vps_name не из списка ВПС, прописанного в базе ----
     try:
-        dinamic_columns_button(markup_choise_fio, model.vps_dict[vps_name])
+        # dinamic_columns_button(markup_choise_fio, model.vps_dict[vps_name])
+        dinamic_columns_button(markup_choise_fio, data_db[vps_name])#----------------------&&&&
         # --- сразу меню не появится, надо пульнуть сообщения --
         if status == 'где ВЫДАЁТСЯ ☏':
             controller.bot.send_message(message.chat.id, f"Выберете кто *ПОЛУЧАЕТ* ☏\n или ↪️В меню ",

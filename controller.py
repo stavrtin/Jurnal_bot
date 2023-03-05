@@ -56,6 +56,7 @@ def choice_fio_from_vps(message, text_status):
 #
     else:
         view.menu_choise_fio(message, text_status)
+
 # -------------
 
 # @bot.message_handler(content_types=["text"])

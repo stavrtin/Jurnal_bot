@@ -4,41 +4,60 @@ import controller
 import psycopg2
 
 
-# vps_list = ['Бутово','Дегунино','Ростокино','Куркино','Царицыно']
+
+dd = 0
+# def read_db_for_criate_button_vps():
+#     # ----------- считываем БД со списком сотруднико, табл "spisok" -------
 #
-# vps_dict = {'Бутово':['Гагарин', 'Леонов', 'Комаров'],
-#             'Дегунино'  :['Дитов', 'Дерешкова', 'Драмаренко','Дкалов'],
-#             'Ростокино' :['Титов-p', 'Терешкова-p', 'Крамаренко-p','Чкалов-p'],
-#              'Куркино'   :['Титов-k', 'Терешкова-k', 'Крамаренко-k','Чкалов-k'],
-#             'Царицыно'  :['Цитов', 'Церешкова', 'ЦКрамаренко','ЦЧкалов', 'ЦКожедуб', 'ЦПокрышкин'],
-#              'Некрасовка':['Нитов', 'НТерешкова', 'НКрамаренко','НЧкалов'],
-#              'Перово':['Питов', 'ПТерешкова', 'ПКрамаренко','ПЧкалов'],
-#             }
+#     # -------------------------------- считываем БД ----------
+#     my_db = psycopg2.connect(
+#         # -------------
+#         database="jurnal_db",
+#         user="postgres",
+#         password="1234",
+#         host="localhost",
+#         port="5432",
+#     )
+#     mycursor = my_db.cursor()
+#     # --------------------------------------------------------
+#
+#
+#     vps_dict = {}
+#
+#     # ---- готовый запрос на создание таблицы -----
+#     sql_all_rec = f"SELECT DISTINCT name_vps FROM spisok_vps"
+#     mycursor.execute(sql_all_rec)
+#     result = mycursor.fetchall()
+#     vps_uniq_list = []
+#     vps_uniq_list = [i[0] for i in result]
+#
+#     for i in vps_uniq_list:
+#         sql_fio_from_vps = f"SELECT fio FROM spisok_vps " \
+#                            f"where name_vps = '{i}'"
+#         mycursor.execute(sql_fio_from_vps)
+#         result_fio = mycursor.fetchall()
+#         fio_list = []
+#         fio_list = [j[0] for j in result_fio]
+#         vps_dict.update({i: fio_list})
+#
+#     mycursor.close()
+#     my_db.close() #--------------- закрывашка БД ---------
+#
+#     return vps_dict
 
-my_db = psycopg2.connect(
-    # -------------
-    database="jurnal_db",
-    user="postgres",
-    password="1234",
-    host="localhost",
-    port="5432"
+def read_db():
+    #///////-------------------------------попробуем засунуть в модель
+    my_db = psycopg2.connect(
+        # -------------
+        database="jurnal_db",
+        user="postgres",
+        password="1234",
+        host="localhost",
+        port="5432",
+    )
+    mycursor = my_db.cursor()
+    # --------------------------------------------------------
 
-)
-
-mycursor = my_db.cursor()
-
-
-def read_db_for_criate_button_vps():
-    # ----------- считываем БД со списком сотруднико, табл "spisok" -------
-    # my_db = psycopg2.connect(
-    #     database="jurnal_db",
-    #     user="postgres",
-    #     password="1234",
-    #     host="localhost",
-    #     port="5432"
-    # )
-    #
-    # mycursor = my_db.cursor()
 
     vps_dict = {}
 
@@ -46,6 +65,7 @@ def read_db_for_criate_button_vps():
     sql_all_rec = f"SELECT DISTINCT name_vps FROM spisok_vps"
     mycursor.execute(sql_all_rec)
     result = mycursor.fetchall()
+    vps_uniq_list = []
     vps_uniq_list = [i[0] for i in result]
 
     for i in vps_uniq_list:
@@ -53,31 +73,59 @@ def read_db_for_criate_button_vps():
                            f"where name_vps = '{i}'"
         mycursor.execute(sql_fio_from_vps)
         result_fio = mycursor.fetchall()
+        fio_list = []
         fio_list = [j[0] for j in result_fio]
         vps_dict.update({i: fio_list})
 
-    return vps_dict
+    mycursor.close()
+    my_db.close() #--------------- закрывашка БД ---------
+
+    data_db = vps_dict
+    return data_db
 
 
-def read_db_for_criate_fio(status):
+    #///-------------------------------------попробуем засунуть в модель -
 
-    vps_dict = {}
 
-    # ---- готовый запрос на создание таблицы -----
-    sql_all_rec = f"SELECT DISTINCT name_vps FROM spisok_vps"
-    mycursor.execute(sql_all_rec)
-    result = mycursor.fetchall()
-    vps_uniq_list = [i[0] for i in result]
 
-    for i in vps_uniq_list:
-        sql_fio_from_vps = f"SELECT fio FROM spisok_vps " \
-                           f"where name_vps = '{i}'"  # ------ если в другой таблице status <> status !!!!
-        mycursor.execute(sql_fio_from_vps)
-        result_fio = mycursor.fetchall()
-        fio_list = [j[0] for j in result_fio]
-        vps_dict.update({i: fio_list})
 
-    return vps_dict
+
+
+
+# def read_db_for_criate_fio(status):
+#
+#     # -------------------------------- считываем БД ----------
+#     my_db = psycopg2.connect(
+#         # -------------
+#         database="jurnal_db",
+#         user="postgres",
+#         password="1234",
+#         host="localhost",
+#         port="5432"
+#
+#     )
+#     mycursor = my_db.cursor()
+#     # --------------------------------------------------------
+#
+#     vps_dict = {}
+#
+#     # ---- готовый запрос на создание таблицы -----
+#     sql_all_rec = f"SELECT DISTINCT name_vps FROM spisok_vps"
+#     mycursor.execute(sql_all_rec)
+#     result = mycursor.fetchall()
+#     vps_uniq_list = [i[0] for i in result]
+#
+#     for i in vps_uniq_list:
+#         sql_fio_from_vps = f"SELECT fio FROM spisok_vps " \
+#                            f"where name_vps = '{i}'"  # ------ если в другой таблице status <> status !!!!
+#         mycursor.execute(sql_fio_from_vps)
+#         result_fio = mycursor.fetchall()
+#         fio_list = [j[0] for j in result_fio]
+#         vps_dict.update({i: fio_list})
+#
+#     my_db.close() #--------------- закрывашка БД ---------
+#
+#     return vps_dict
 
 
 
@@ -107,17 +155,32 @@ def record_contact(message, fio, vps_name, status):
             # controller.bot.send_message(message.chat.id, f'{fio} {stat_tex} {phone_number} в {vps_name} - {date_}') # -- вывод сообщ на экран телеф
             view.start_menu(message)
 
-vps_dict = read_db_for_criate_button_vps()
+# vps_dict = []
+# vps_dict = read_db_for_criate_button_vps()
 
-vps_dict_for_take = read_db_for_criate_fio('СДАЛ')
-vps_dict_for_return = read_db_for_criate_fio('ПОЛУЧИЛ')
+# vps_dict_for_take = read_db_for_criate_fio('СДАЛ')
+# vps_dict_for_return = read_db_for_criate_fio('ПОЛУЧИЛ')
 
 
 
 
 def insert_data(vps_name, fio, phone_number, date_, stat_tex):
     # ----- добавление записи -----------
-    # mycursor = read_db()
+
+    # -------------------------------- считываем БД ----------
+    my_db = psycopg2.connect(
+        # -------------
+        database="jurnal_db",
+        user="postgres",
+        password="1234",
+        host="localhost",
+        port="5432",
+    )
+    mycursor = my_db.cursor()
+    # --------------------------------------------------------
+
     mycursor.execute(     f"insert into jurnal_tab (vps_j, fio_j, phone_number_j, date_time, status) values "
                                                 f"('{vps_name}','{fio}','{phone_number}','{date_}', '{stat_tex}')");
     my_db.commit()
+    my_db.close() #--------------- закрывашка БД ---------
+    mycursor.close()
