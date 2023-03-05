@@ -23,6 +23,44 @@ def admin_menu(message):
     controller. bot.send_message(message.chat.id, "Открыт доступ для внесения правок в БД",
                      reply_markup=markup)  # reply_markup - вывод меню
 
+
+
+def add_record_menu(message):
+    # --------------- добавляем запись ФИО---
+    # -- сначала выбрать ВПС-ку-------------
+
+    text_status = 'где ВЫДАЁТСЯ ☏'
+    # ---- ДИНАМИЧЕСКИ создать кнопки ВПС -------
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)  # -СОЗДАЮ меню
+    # ---читаем БД -------
+    data_db = model.read_db(text_status)
+    dinamic_columns_button(markup, data_db)
+
+    controller.bot.send_message(message.chat.id, f"Выберете ВПС, в которой ДОБАВЛЯЕМ запись\n или ↪️В меню",
+                                    reply_markup=markup, parse_mode="Markdown")
+    controller.bot.register_next_step_handler(message, add_fio_menu)
+
+def add_fio_menu(message):
+    # ---читаем БД -------
+    status = 'где ВЫДАЁТСЯ ☏'
+    data_db = model.read_db(status)
+    vps_name = message.text  # ------- получил имя ВПС (выбрано нажатием кнопки - текст КНОПКИ)
+    if vps_name in data_db:
+        markup_add_fio = types.ReplyKeyboardMarkup(resize_keyboard=True)  # -СОЗДАЮ меню markup
+        item_back = types.KeyboardButton('↪️В меню')
+        markup_add_fio.add(item_back)
+
+
+        controller.bot.send_message(message.chat.id, f"Вы выбрали {vps_name} для добавления сотрудника\n "
+                                                     f"Введите ФИО \nили ↪️В меню ",
+                                             reply_markup=markup_add_fio, parse_mode= "Markdown")  # reply_markup - вывод меню
+
+        controller.bot.register_next_step_handler(message, model.insert_new_record_to_db, vps_name)  # --- переходим к выбору FIO
+    else:
+        controller.bot.send_message(message.chat.id, "☹ Неверно указана ВПС...")
+        start_menu(message)
+
+
 def start_menu(message):
     # ----- создаю стартовое меню -------------
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)  # -СОЗДАЮ меню markup (resize_keyb. что бы кнопки влезали)
@@ -130,6 +168,11 @@ def menu_confirm_records(message, vps_name, status):
 def confirm_recording_by_chat(message, fio, stat_tex, phone_number, vps_name, date_):
     controller.bot.send_message(message.chat.id, f'<b>{fio}</b> {stat_tex} {phone_number} в ВПС <b>{vps_name}</b> {date_}'
                                 , parse_mode= "HTML")  # -- вывод сообщ на экран телеф
+
+def confirm_new_fio_recording_by_chat(message, fio, vps_name):
+    controller.bot.send_message(message.chat.id,
+                        f'<b> Сотрудник {fio}</b> добавлен в <b>{vps_name}</b>', parse_mode="HTML")  # -- вывод сообщ на экран телеф
+
 
 def wrong_choise(message):
     controller.bot.send_message(message.chat.id, "Выберете действие, указанное на кнопках, или /start для перезапуска БОТа ")

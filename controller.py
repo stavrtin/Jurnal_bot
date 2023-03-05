@@ -41,6 +41,9 @@ def bot_messages(message): # --------------------формируем список
         elif message.text == '↪️В меню':
             view.start_menu(message)
 
+        elif message.text == '👽 Добавить':  # ------ подменю админа'
+            view.add_record_menu(message)
+
         else:
             # bot.send_message(message.chat.id, "Выберете действие, указанное на кнопках, или /start для перезапуска БОТа ")
             view.wrong_choise(message)
